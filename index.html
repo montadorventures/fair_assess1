@@ -1,0 +1,199 @@
+import pandas as pd
+import dash
+from dash import dcc, html, Input, Output, dash_table
+import plotly.express as px
+
+
+# Load the data
+def load_data(file_path):
+    df = pd.read_csv(file_path, delimiter='|', encoding='ISO-8859-1',
+                     dtype={'Year_Built': 'Int64', 'Appraised_Value': 'float', 'Living_Area': 'float'})
+
+    df = df[['Owner_Name', 'Situs_Address', 'City', 'MAPSCO', 'TAD_Map', 'Year_Built', 'Appraised_Value',
+             'Land_SqFt', 'Living_Area', 'Account_Num']].dropna()
+    df = df[df['Living_Area'] > 0]
+    # df['Value_PSF'] = df['Value_PSF'].apply(lambda x: f"${round(x):,}")
+    # df['Appraised_Value'] = df['Appraised_Value'].apply(lambda x: f"${round(x):,}")
+    df['Value_PSF'] = df['Appraised_Value'] / df['Living_Area']
+    df['TAD_Link'] = df['Account_Num'].apply(
+        lambda x: f'<a href="https://www.tad.org/property?account={x}" target="_blank">View Property</a>')
+    return df
+
+
+# Initialize Dash app
+app = dash.Dash(__name__,
+                external_stylesheets=["https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"])
+df = load_data("data.csv")
+
+# Define max width and height constraints
+app.layout = html.Div(style={
+    'width': '800px',  # 8.5 inches (~800px)
+    'height': '1056px',  # 11 inches (~1056px)
+    'margin': 'auto',  # Center the content
+    'padding': '20px',  # Add padding
+    'border': '1px solid #ddd',  # Optional border for print preview
+    'backgroundColor': '#ffffff'  # Ensure white background for printing
+}, children=[
+
+    html.Div(className="text-center mb-3", children=[
+        html.H2("Is My Property Fairly Assessed?", className="fw-bold"),
+        html.P("Find out if you're overpaying on property taxes and how much you could save.", className="lead"),
+        html.P(
+            "This information is provided for informational purposes only. It is derived from sources deemed reliable but is not guaranteed for accuracy or completeness. This does not constitute tax, legal, or investment advice.",
+            className="mt-3 fst-italic fs-6")
+    ]),
+
+    html.Div(className="mb-2", children=[
+        html.Label("Search by Address or Owner Name:", className="form-label fw-bold"),
+        dcc.Input(id='search_input', type='text', className="form-control", placeholder='Enter Address or Owner Name',
+                  debounce=True)
+    ]),
+
+    html.Div(className="mb-2", style={'height': '100px', 'overflowY': 'auto'}, children=[
+        dash_table.DataTable(
+            id='address_selection_table',
+            columns=[
+                {'name': 'Owner Name', 'id': 'Owner_Name'},
+                {'name': 'Address', 'id': 'Situs_Address'},
+            ],
+            row_selectable='single',
+            page_size=5,  # Reduce page size to fit the layout
+            style_cell={'textAlign': 'left', 'padding': '5px', 'fontSize': '12px'},
+            style_header={'fontWeight': 'bold', 'backgroundColor': '#f8f9fa'}
+        )
+    ]),
+
+    html.Div(id='assessment_text', className="alert alert-info mt-2", style={'fontSize': '16px'}),
+
+    dcc.Graph(id='value_psf_chart', className="mt-3", style={'height': '300px'}),  # Reduce chart height
+
+    ### Comparable Properties Table
+    html.H4("Comparable Properties:", className="mt-3 fw-bold fs-12"),
+    dash_table.DataTable(
+        id='results_table',
+        columns=[
+            {'name': 'Address', 'id': 'Situs_Address'},
+            {'name': 'Appraised Value', 'id': 'Appraised_Value', 'type': 'numeric', 'format': {'specifier': '$,.0f'}},
+            {'name': 'Value PSF', 'id': 'Value_PSF', 'type': 'numeric', 'format': {'specifier': '$,.0f'}},
+            {'name': 'Square Feet', 'id': 'Living_Area'},
+            {'name': 'Year Built', 'id': 'Year_Built'},
+            {'name': 'Land SqFt', 'id': 'Land_SqFt'},
+        ],
+        page_size=10,  # Reduce rows per page
+        style_table={'overflowX': 'auto'},
+        style_cell={'textAlign': 'left', 'padding': '5px', 'fontSize': '12px'},
+        style_header={'fontWeight': 'bold', 'backgroundColor': '#f8f9fa'}
+    ),
+
+    ## Properties Supporting a Lower Valuation
+    html.H4("Properties Supporting a Lower Assessed Value:", className="mt-3 fw-bold fs-12"),
+    dash_table.DataTable(
+        id='lower_valuation_table',
+        columns=[
+            {'name': 'Address', 'id': 'Situs_Address'},
+            {'name': 'Appraised Value', 'id': 'Appraised_Value', 'type': 'numeric', 'format': {'specifier': '$,.0f'}},
+            {'name': 'Value PSF', 'id': 'Value_PSF', 'type': 'numeric', 'format': {'specifier': '$,.0f'}},
+            {'name': 'Square Feet', 'id': 'Living_Area'},
+            {'name': 'Year Built', 'id': 'Year_Built'},
+            {'name': 'Land SqFt', 'id': 'Land_SqFt'},
+        ],
+        page_size=10,  # Reduce rows per page
+        style_table={'overflowX': 'auto'},
+        style_cell={'textAlign': 'left', 'padding': '5px', 'fontSize': '12px'},
+        style_header={'fontWeight': 'bold', 'backgroundColor': '#f8f9fa'}
+    )
+])
+
+html.P("This information is provided for informational purposes only. It is derived from sources deemed reliable but is not guaranteed for accuracy or completeness. This does not constitute tax, legal, or investment advice.", className="alert alert-info mt-2", style={'fontSize': '8px'})
+####
+## Address Selection
+@app.callback(
+    Output('address_selection_table', 'data'),
+    Input('search_input', 'value')
+)
+def update_search_results(search_value):
+    if not search_value:
+        return df[['Owner_Name', 'Situs_Address']].to_dict('records')
+
+    filtered_df = df[df['Situs_Address'].str.contains(search_value, case=False, na=False) |
+                     df['Owner_Name'].str.contains(search_value, case=False, na=False)]
+    return filtered_df[['Owner_Name', 'Situs_Address']].to_dict('records')
+
+## Results Table
+@app.callback(
+    [Output('results_table', 'data'),
+     Output('value_psf_chart', 'figure'),
+     Output('assessment_text', 'children'),
+     Output('lower_valuation_table', 'data')],
+    [Input('address_selection_table', 'selected_rows'),
+     Input('address_selection_table', 'data')]
+)
+def update_report(selected_rows, table_data):
+    if not selected_rows or not table_data:
+        return [], px.bar(), "", []
+
+    selected_address = table_data[selected_rows[0]]['Situs_Address']
+    matched_row = df[df['Situs_Address'] == selected_address].iloc[0]
+
+    result_df = df[df['TAD_Map'] == matched_row['TAD_Map']]
+    result_df = result_df[result_df['MAPSCO'] == matched_row['MAPSCO']]
+    result_df = result_df[
+        result_df['Year_Built'].between(matched_row['Year_Built'] - 20, matched_row['Year_Built'] + 20) &
+        result_df['Living_Area'].between(matched_row['Living_Area'] * 0.90, matched_row['Living_Area'] * 1.1)&
+        result_df['Land_SqFt'].between(matched_row['Land_SqFt'] * 0.90, matched_row['Land_SqFt'] * 1.1) &
+        result_df['Value_PSF'].between(matched_row['Value_PSF'] * 0.50, matched_row['Value_PSF'] * 1.5)
+        ]
+
+    value_psf_value = matched_row['Value_PSF']
+    median_value_psf = result_df['Value_PSF'].median()
+    over_under = (value_psf_value / median_value_psf - 1)  if median_value_psf else None
+    savings = matched_row['Appraised_Value'] * 0.025 * over_under  if over_under else None
+    total_addresses = result_df['Situs_Address'].count()
+
+    assessment_text = f"Based on {total_addresses} relevant comps in the neighborhood, {selected_address} is over assessed by {((value_psf_value / median_value_psf) - 1) * 100:,.1f}% at ${value_psf_value:,.0f} PSF vs ${median_value_psf:,.0f} PSF for comparable properties. A fair assessment could save ${savings:,.0f} per year." if savings > 250  else f"Based on {total_addresses} relevant comps in the neighborhood, {selected_address} is fairly assessed."
+
+    lower_valuation_df = result_df[
+        (result_df['Value_PSF'] < median_value_psf) &
+        (result_df['Value_PSF'] < value_psf_value) &
+        (result_df['Value_PSF'] > (median_value_psf * 0.7))
+        ].sort_values(by='Value_PSF', ascending=True)
+
+    # Assessment message
+    ## assessment_text = f"Based on {total_addresses} relevant comps in the neighborhood, {selected_address} is over-assessed by {over_under} at ${value_psf_value:,.0f} PSF vs ${median_value_psf:,.0f} PSF for comparable properties" if value_psf_value > median_value_psf else f"Based on {total_addresses} relevant comps in the neighborhood, {selected_address} is fairly assessed."
+    sublabelposition = f"right" if value_psf_value > median_value_psf else f"left"
+    complabelposition = f"left" if value_psf_value > median_value_psf else f"right"
+
+    # Generate Chart
+    fig = px.histogram(result_df, x='Value_PSF', nbins=20, title=f"{selected_address} vs Neighborhood Comps")
+    fig.update_layout(bargap=0.1)  # Adjust this value to control the space between the bars
+
+    fig.add_vline(x=value_psf_value, line_dash='dash', line_color='red',
+                  annotation_text=f'{selected_address}: ${value_psf_value:,.0f}',
+                  annotation_position=sublabelposition)
+    fig.add_vline(x=median_value_psf, line_dash='dot', line_color='green',
+                  annotation_text=f'Comp Median: ${median_value_psf:,.0f}',
+                  annotation_position=complabelposition)
+
+    # Adjust Chart Layout
+    fig.update_layout(
+        width=800,  # Set chart width
+        margin=dict(l=50, r=50, t=50, b=50),  # Adjust margins
+        title_x=0.5  # Center title
+    )
+
+    # Display Chart in Centered Container
+    html.Div(
+        dcc.Graph(figure=fig),
+        style={'display': 'flex', 'justify-content': 'center'}  # Center the chart
+    )
+
+    # Highlight rows where Value_PSF is lower than the selected property
+    style_data_conditional = [
+        {'if': {'filter_query': f'{{Value_PSF}} < {value_psf_value}'}, 'backgroundColor': '#FFDDDD'}
+    ]
+
+    return result_df.to_dict('records'), fig, assessment_text, lower_valuation_df.to_dict('records')
+
+
+if __name__ == "__main__":
+    app.run_server(debug=True)
