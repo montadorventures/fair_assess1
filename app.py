@@ -6,5 +6,4 @@ app = Flask(__name__)
 def home():
     return render_template('index.html')  # This will render index.html in the browser
 
-if __name__ == "__main__":
-    app.run(debug=True)
+# The `if __name__ == "__main__":` block is not needed for Gunicorn
