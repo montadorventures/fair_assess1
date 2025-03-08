@@ -1,10 +1,5 @@
-[tool.poetry.dependencies]
-gunicorn = "^20.1.0"
-poetry init
 [tool.poetry]
-name = "your_project_name"
+name = "fair_assess1"
 version = "0.1.0"
 description = "A short description of your project"
 authors = ["Your Name <your.email@example.com>"]
-poetry lock
-poetry install
