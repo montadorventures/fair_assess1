@@ -1,1 +1,1 @@
-poetry run gunicorn main:server
+gunicorn app:server
