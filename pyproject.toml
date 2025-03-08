@@ -1,7 +1,10 @@
-[tool.poetry.dependencies]
-gunicorn = "^20.1.0"
 [tool.poetry]
 name = "fair_assess1"
 version = "0.1.0"
 description = "A short description of your project"
 authors = ["Your Name <your.email@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.11"  # Specify your Python version here, if needed
+gunicorn = "^20.1.0"
+# Include other dependencies like Flask/Django if required
