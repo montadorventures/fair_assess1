@@ -7,6 +7,5 @@ authors = ["Your Name <your.email@example.com>"]
 [tool.poetry.dependencies]
 python = "^3.11"  # Specify your Python version here, if needed
 gunicorn = "^20.1.0"
-python = "^3.11"
-flask = "^2.2.0"
+flask = "^2.2.0"  # Added Flask dependency
 # Include other dependencies like Flask/Django if required
