@@ -1,3 +1,5 @@
+[tool.poetry.dependencies]
+gunicorn = "^20.1.0"
 [tool.poetry]
 name = "fair_assess1"
 version = "0.1.0"
