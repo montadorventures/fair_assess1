@@ -1,10 +1,29 @@
-from flask import Flask
+import dash
+import dash_html_components as html
+import dash_core_components as dcc
+from flask import Flask, render_template
 
-app = Flask(__name__)
+# Create Flask server
+server = Flask(__name__)
 
-@app.route("/")
-def home():
-    return "Hello, World!"
+# Create Dash app and bind it to Flask
+app = dash.Dash(__name__, server=server, routes_pathname_prefix='/')
+
+app.layout = html.Div([
+    html.H1("My Dash App"),
+    dcc.Graph(
+        id="example-graph",
+        figure={
+            "data": [{"x": [1, 2, 3], "y": [4, 1, 2], "type": "bar"}],
+            "layout": {"title": "Sample Graph"}
+        },
+    ),
+])
+
+# Serve index.html from GitHub
+@server.route("/")
+def serve_index():
+    return render_template("index.html")
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    server.run(debug=True, host="0.0.0.0", port=5000)
