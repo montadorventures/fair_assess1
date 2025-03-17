@@ -1,17 +1,18 @@
+import os
+from flask import Flask, send_from_directory
 import dash
-from flask import Flask
-from dash import html  # Updated import
+from dash import html
 
 # Create Flask server
 server = Flask(__name__)
 
-# Serve index.html on root route
+# Serve index.html from the 'main' folder
 @server.route("/")
 def serve_index():
-    return server.send_static_file('index.html')  # Serve index.html from 'static' folder
+    return send_from_directory(os.getcwd(), 'index.html')  # Serving index.html from the main folder
 
 # Initialize Dash and attach it to Flask
-app = dash.Dash(__name__, server=server, routes_pathname_prefix="/main/")
+app = dash.Dash(__name__, server=server, routes_pathname_prefix="/dashboard/")
 
 # Define a simple layout for the Dash app
 app.layout = html.Div("Hello, Dash!")  # Replace this with your actual layout
