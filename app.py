@@ -6,7 +6,7 @@ import plotly.express as px
 
 # Load the data
 def load_data(file_path):
-    df = pd.read_csv(file_path, encoding='ISO-8859-1',
+    df = pd.read_csv(file_path, encoding='UTF-8',
                      dtype={'Year_Built': 'Int64', 'Appraised_Value': 'float', 'Living_Area': 'float'})
 
     df = df[['Owner_Name', 'Situs_Address', 'GIS_Link','City', 'MAPSCO', 'TAD_Map', 'Year_Built', 'Appraised_Value','Land_Value',
