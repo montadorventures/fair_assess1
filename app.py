@@ -11,7 +11,7 @@ def serve_index():
     return server.send_static_file('index.html')  # Serve index.html from 'static' folder
 
 # Initialize Dash and attach it to Flask
-app = dash.Dash(__name__, server=server, routes_pathname_prefix="/dashboard/")
+app = dash.Dash(__name__, server=server, routes_pathname_prefix="/main/")
 
 # Define a simple layout for the Dash app
 app.layout = html.Div("Hello, Dash!")  # Replace this with your actual layout
