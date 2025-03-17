@@ -13,6 +13,8 @@ def load_data(file_path):
              'Land_SqFt', 'Living_Area', 'Account_Num','LegalDescription','Property_Class','State_Use_Code','Exemption_Code']].dropna()
     df = df[df['Living_Area'] > 0]
 #    df['Subdivision'] = df['LegalDescription'].str.extract(r'^(\S+\s\S+)(?=\s|ADDITION|BLOCK|-|$)', flags=re.IGNORECASE)
+    df = df.dropna()
+    df['Year_Built'] = df['Year_Built'].astype('Int64')
     df['Subdivision'] = df['LegalDescription'].str.extract(r'^(.*?)\sBLOCK', flags=re.IGNORECASE)
     df['GIS_short'] = df['GIS_Link'].str.extract(r'^([^-]+)', flags=re.IGNORECASE)
     df['Block_Number'] = df['LegalDescription'].str.extract(r'Block (\d+)')
