@@ -8,4 +8,5 @@ authors = ["Your Name <your.email@example.com>"]
 dash = "^2.14.0"
 flask = "^2.3.3"
 gunicorn = "^20.1.0"
+python = ">=3.7,<3.12"
 
