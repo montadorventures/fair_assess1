@@ -26,7 +26,7 @@ def load_data(file_path):
 # Initialize Dash app
 app = dash.Dash(__name__,
                 external_stylesheets=["https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"])
-df = load_data("reduced_data.csv")
+df = load_data("fair_assess1/reduced_data.csv")
 app.layout = html.Div(style={
     'width': 'auto',  # 8.5 inches (~800px)
     'height': '1056px',  # 11 inches (~1056px)
