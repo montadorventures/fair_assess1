@@ -3,3 +3,4 @@ pandas
 plotly
 gunicorn
 flask==2.2.0
+dash-bootstrap-components
