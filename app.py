@@ -6,8 +6,8 @@ from flask import Flask, render_template
 # Create Flask server
 server = Flask(__name__)
 
-# Create Dash app and bind it to Flask
-app = dash.Dash(__name__, server=server, routes_pathname_prefix='/')
+# Initialize Dash and attach it to Flask
+app = dash.Dash(__name__, server=server, routes_pathname_prefix="/")
 
 app.layout = html.Div([
     html.H1("My Dash App"),
@@ -20,7 +20,7 @@ app.layout = html.Div([
     ),
 ])
 
-# Serve index.html from GitHub
+# Serve index.html
 @server.route("/")
 def serve_index():
     return render_template("index.html")
