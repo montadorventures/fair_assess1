@@ -22,8 +22,7 @@ def load_data(file_path):
     # df['Appraised_Value'] = df['Appraised_Value'].apply(lambda x: f"${round(x):,}")
 
     df['Value_PSF'] = df['Appraised_Value'] / df['Living_Area']
-   print(df)
-
+    
 # Initialize Dash app
 app = dash.Dash(__name__,
                 external_stylesheets=["https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"])
