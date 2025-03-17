@@ -4,3 +4,7 @@ plotly
 gunicorn
 flask>=2.0.0
 dash-bootstrap-components
+git add requirements.txt
+git commit -m "Update dependencies"
+git push origin main
+
