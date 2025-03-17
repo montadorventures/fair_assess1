@@ -13,4 +13,4 @@ def serve_index():
 app = dash.Dash(__name__, server=server, routes_pathname_prefix="/dashboard/")
 
 if __name__ == "__main__":
-    server.run(debug=True, host="0.0.0.0", port=5000)
+    app.run_server(debug=False, host='0.0.0.0', port=8050)
