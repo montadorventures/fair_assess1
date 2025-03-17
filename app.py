@@ -28,7 +28,7 @@ app = dash.Dash(__name__,
                 external_stylesheets=["https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"])
 df = load_data("reduced_data.csv")
 app.layout = html.Div(style={
-    'width': '800px',  # 8.5 inches (~800px)
+    'width': '375px',  # 8.5 inches (~800px)
     'height': '1056px',  # 11 inches (~1056px)
     'margin': 'auto',  # Center the content
     'padding': '10px',  # Add padding
