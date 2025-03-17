@@ -240,7 +240,7 @@ def update_report(selected_rows, table_data):
     # Highlight rows where Value_PSF is lower than the selected property
     style_data_conditional = [
         {'if': {'filter_query': f'{{Value_PSF}} < {value_psf_value}'}, 'backgroundColor': '#FFDDDD'}
-    ], fluid=True)
+    ]
 
     return result_df.to_dict('records'), fig, assessment_text, lower_valuation_df.to_dict('records')
 
