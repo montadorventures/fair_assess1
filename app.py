@@ -1,5 +1,6 @@
 import dash
 from flask import Flask
+import dash_html_components as html
 
 # Create Flask server
 server = Flask(__name__)
@@ -11,6 +12,9 @@ def serve_index():
 
 # Initialize Dash and attach it to Flask
 app = dash.Dash(__name__, server=server, routes_pathname_prefix="/dashboard/")
+
+# Define a simple layout for the Dash app
+app.layout = html.Div("Hello, Dash!")  # Replace this with your actual layout
 
 if __name__ == "__main__":
     app.run_server(debug=False, host='0.0.0.0', port=8050)
