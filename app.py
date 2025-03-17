@@ -8,7 +8,7 @@ import plotly.express as px
 def load_data(file_path):
     df = pd.read_csv(file_path, encoding='UTF-8',
                      dtype={'Year_Built': 'Int64', 'Appraised_Value': 'float', 'Living_Area': 'float'})
-
+ 
     df = df[['Owner_Name', 'Situs_Address', 'GIS_Link','City', 'MAPSCO', 'TAD_Map', 'Year_Built', 'Appraised_Value','Land_Value',
              'Land_SqFt', 'Living_Area', 'Account_Num','LegalDescription','Property_Class','State_Use_Code','Exemption_Code']].dropna()
     df = df[df['Living_Area'] > 0]
@@ -22,6 +22,7 @@ def load_data(file_path):
     # df['Appraised_Value'] = df['Appraised_Value'].apply(lambda x: f"${round(x):,}")
 
     df['Value_PSF'] = df['Appraised_Value'] / df['Living_Area']
+   print(df)
 
 # Initialize Dash app
 app = dash.Dash(__name__,
@@ -240,7 +241,7 @@ def update_report(selected_rows, table_data):
     # Highlight rows where Value_PSF is lower than the selected property
     style_data_conditional = [
         {'if': {'filter_query': f'{{Value_PSF}} < {value_psf_value}'}, 'backgroundColor': '#FFDDDD'}
-    ]
+    ], fluid=True)
 
     return result_df.to_dict('records'), fig, assessment_text, lower_valuation_df.to_dict('records')
 
