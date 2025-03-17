@@ -1,5 +1,5 @@
 import dash
-from flask import Flask, render_template
+from flask import Flask
 
 # Create Flask server
 server = Flask(__name__)
@@ -7,7 +7,7 @@ server = Flask(__name__)
 # Serve index.html on root route
 @server.route("/")
 def serve_index():
-    return render_template("index.html")
+    return server.send_static_file('index.html')  # Serving directly from the root
 
 # Initialize Dash and attach it to Flask
 app = dash.Dash(__name__, server=server, routes_pathname_prefix="/dashboard/")
