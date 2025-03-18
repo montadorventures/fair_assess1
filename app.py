@@ -37,7 +37,7 @@ df = pd.read_csv(google_sheet_url)
 
 #df = load_data("reduced_data.csv")
 app.layout = html.Div(style={
-    'width': '800px',  # 8.5 inches (~800px)
+    'width': 'auto',  # 8.5 inches (~800px)
     'height': '1056px',  # 11 inches (~1056px)
     'margin': 'auto',  # Center the content
     'padding': '10px',  # Add padding
@@ -63,7 +63,7 @@ app.layout = html.Div(style={
         dash_table.DataTable(
             id='address_selection_table',
             columns=[
-               # {'name': 'Owner Name', 'id': 'Owner_Name'},
+                {'name': 'LegalDescription', 'id': 'LegalDescription'},
                 {'name': 'Address', 'id': 'Situs_Address'},
             ],
             row_selectable='single',
