@@ -3,31 +3,40 @@ import pandas as pd
 import dash
 from dash import dcc, html, Input, Output, dash_table
 import plotly.express as px
-# Construct the Google Sheets CSV export URL
-CSV_URL = f"https://docs.google.com/spreadsheets/d/e/2PACX-1vRa5d5Esfr7xKB1oR8mr7WyD61TZbCz1YIpQFffF9C8ghGEjII3qjPiXHiNNrjb6VVYZXDjTrI8wEed/pub?gid=1273093190&single=true&output=csv"
 
-# Load the Google Sheet data
-def load_data():
-    df = pd.read_csv(CSV_URL)
-    return df
+# Load the data
+def load_data(file_path):
+    df = pd.read_csv(file_path, encoding='ISO-8859-1',
+                     dtype={'Year_Built': 'Int64', 'Appraised_Value': 'float', 'Living_Area': 'float'})
 
-    df = df[['Owner_Name', 'Situs_Address', 'GIS_Link', 'City', 'MAPSCO', 'TAD_Map', 'Year_Built', 'Appraised_Value',
-             'Land_Value', 'Land_SqFt', 'Living_Area', 'Account_Num', 'LegalDescription', 'Property_Class',
-             'State_Use_Code', 'Exemption_Code']].dropna()
+    df = df[['Owner_Name', 'Situs_Address', 'GIS_Link','City', 'MAPSCO', 'TAD_Map', 'Year_Built', 'Appraised_Value','Land_Value',
+             'Land_SqFt', 'Living_Area', 'Account_Num','LegalDescription','Property_Class','State_Use_Code','Exemption_Code']].dropna()
     df = df[df['Living_Area'] > 0]
-    df['Year_Built'] = df['Year_Built'].astype('Int64')
+#    df['Subdivision'] = df['LegalDescription'].str.extract(r'^(\S+\s\S+)(?=\s|ADDITION|BLOCK|-|$)', flags=re.IGNORECASE)
     df['Subdivision'] = df['LegalDescription'].str.extract(r'^(.*?)\sBLOCK', flags=re.IGNORECASE)
     df['GIS_short'] = df['GIS_Link'].str.extract(r'^([^-]+)', flags=re.IGNORECASE)
     df['Block_Number'] = df['LegalDescription'].str.extract(r'Block (\d+)')
+    # df['Value_PSF'] = df['Value_PSF'].apply(lambda x: f"${round(x):,}")
+    # df['Appraised_Value'] = df['Appraised_Value'].apply(lambda x: f"${round(x):,}")
+
     df['Value_PSF'] = df['Appraised_Value'] / df['Living_Area']
-    return df  # Ensure the function returns the DataFrame
+    df['TAD_Link'] = df['Account_Num'].apply(
+        lambda x: f'<a href="https://www.tad.org/property?account={x}" target="_blank">View Property</a>')
+    return df
+
 
 # Initialize Dash app
 app = dash.Dash(__name__,
                 external_stylesheets=["https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"])
+# Replace this with your Google Sheets URL in CSV format
+google_sheet_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRa5d5Esfr7xKB1oR8mr7WyD61TZbCz1YIpQFffF9C8ghGEjII3qjPiXHiNNrjb6VVYZXDjTrI8wEed/pub?gid=1273093190&single=true&output=csv"
 
+# Load the data directly into a DataFrame
+df = pd.read_csv(google_sheet_url)
+
+#df = load_data("reduced_data.csv")
 app.layout = html.Div(style={
-    'width': 'auto',  # 8.5 inches (~800px)
+    'width': '800px',  # 8.5 inches (~800px)
     'height': '1056px',  # 11 inches (~1056px)
     'margin': 'auto',  # Center the content
     'padding': '10px',  # Add padding
@@ -77,8 +86,8 @@ app.layout = html.Div(style={
             {'name': 'index_value', 'id': 'index_value'},
             {'name': 'Subdivision', 'id': 'Subdivision'},
             {'name': 'GIS_short', 'id': 'GIS_short'},
-            # {'name': 'Block', 'id': 'Block_Number'},
-            # {'name': 'Exemption', 'id': 'Exemption_Code'},
+           # {'name': 'Block', 'id': 'Block_Number'},
+           # {'name': 'Exemption', 'id': 'Exemption_Code'},
             {'name': 'Appraised Value', 'id': 'Appraised_Value', 'type': 'numeric', 'format': {'specifier': '$,.0f'}},
             {'name': 'Adjustment', 'id': 'Adjustment', 'type': 'numeric', 'format': {'specifier': '$,.0f'}},
             {'name': 'Adjusted Value', 'id': 'Adjusted_Value', 'type': 'numeric', 'format': {'specifier': '$,.0f'}},
@@ -115,17 +124,14 @@ app.layout = html.Div(style={
 
 # Define max width and height constraints
 
-html.P(
-    "This information is provided for informational purposes only. It is derived from sources deemed reliable but is not guaranteed for accuracy or completeness. This does not constitute tax, legal, or investment advice.",
-    className="alert alert-info mt-2", style={'fontSize': '8px'})
-
-
+html.P("This information is provided for informational purposes only. It is derived from sources deemed reliable but is not guaranteed for accuracy or completeness. This does not constitute tax, legal, or investment advice.", className="alert alert-info mt-2", style={'fontSize': '8px'})
 ####
 ## Address Selection
 @app.callback(
     Output('address_selection_table', 'data'),
     Input('search_input', 'value')
 )
+
 def update_search_results(search_value):
     if not search_value:
         return df[['Owner_Name', 'Situs_Address']].to_dict('records')
@@ -133,7 +139,6 @@ def update_search_results(search_value):
     filtered_df = df[df['Situs_Address'].str.contains(search_value, case=False, na=False) |
                      df['Owner_Name'].str.contains(search_value, case=False, na=False)]
     return filtered_df[['Owner_Name', 'Situs_Address']].to_dict('records')
-
 
 ## Results Table
 @app.callback(
@@ -174,24 +179,19 @@ def update_report(selected_rows, table_data):
     value_psf_value = matched_row['Value_PSF']
     median_value_psf = result_df['Value_PSF'].median()
 
-    over_under = (value_psf_value / median_value_psf - 1) if median_value_psf else None
+    over_under = (value_psf_value / median_value_psf - 1)  if median_value_psf else None
     discount = (median_value_psf / value_psf_value - 1)
-    savings = matched_row['Appraised_Value'] * 0.025 * -discount if discount else None
+    savings = matched_row['Appraised_Value'] * 0.025 * -discount  if discount else None
     total_addresses = result_df['Situs_Address'].count()
     result_df['abs_from_median'] = abs(over_under)
-    result_df['index_value'] = abs((matched_row['Living_Area'] / result_df['Living_Area'] - 1) * (
-            matched_row['Year_Built'] / result_df['Year_Built'] - 1) * 4)
+    result_df['index_value'] =abs(( matched_row['Living_Area'] / result_df['Living_Area']-1) * (
+                                              matched_row['Year_Built'] / result_df['Year_Built']-1) * 4)
     appraised_value = matched_row['Appraised_Value']
     above_below = f"above" if over_under > 0 else f"below"
-    result_df['Adjusted_Value'] = result_df['Appraised_Value'] + (
-                matched_row['Living_Area'] - result_df['Living_Area']) * 70 + (
-                                              matched_row['Land_Value'] - result_df['Land_Value']) + (
-                                              matched_row['Year_Built'] - result_df['Year_Built']) * result_df[
-                                      'Appraised_Value'] * .005
+    result_df['Adjusted_Value'] = result_df['Appraised_Value']+(matched_row['Living_Area']-result_df['Living_Area'])*70+(matched_row['Land_Value']-result_df['Land_Value'])+(matched_row['Year_Built']-result_df['Year_Built'])*result_df['Appraised_Value']*.005
     median_adjusted_value = result_df['Adjusted_Value'].median()
-    savings_based_on_adjusted = (median_adjusted_value / matched_row['Appraised_Value'] - 1) * 0.025 * matched_row[
-        'Appraised_Value']
-    cutoff = 0.7 if total_addresses < 10 else 0.90
+    savings_based_on_adjusted = (median_adjusted_value / matched_row['Appraised_Value'] - 1) * 0.025 * matched_row['Appraised_Value']
+    cutoff = 0.7 if total_addresses < 10  else 0.90
     lower_valuation_df = result_df[
         (result_df['Value_PSF'] < ((median_value_psf + value_psf_value) / 2)) &
         (result_df['Value_PSF'] < value_psf_value) &
@@ -200,21 +200,21 @@ def update_report(selected_rows, table_data):
     lower_addresses = lower_valuation_df['Situs_Address'].count()
     lower_median_value_psf = lower_valuation_df['Value_PSF'].median()
     assessment_text = f"There are not enough comparable properties in the neighborhood to provide an educated assessment." \
-        if total_addresses < 6 else (
-        f"{selected_address} is fairly assessed based on {total_addresses} comparable properties.  \n{lower_addresses} are assessed lower with a median value of ${lower_median_value_psf:,.0f}") \
-        if value_psf_value < median_value_psf and savings < 250 else (
-        f"{selected_address} is assessed at ${value_psf_value:,.0f} vs ${median_value_psf:,.0f} for similar properties and"
-        f"{((value_psf_value / median_value_psf) - 1) * 100:,.1f}% "
-        f" {above_below} {total_addresses} relevant comps in the neighborhood. \n{lower_addresses} properties are assessed lower with a median value of ${lower_median_value_psf:,.0f}. \n"
-        f"\nAn equitable assessment could result in ${savings:,.0f} in annual savings."
-        f"\nAdjusted Value: ${median_adjusted_value:,.0f} Appraised Value: ${appraised_value:,.0f}.")
-    result_df['distance_from_median'] = abs(result_df['Value_PSF'] / median_value_psf - 1)
+        if total_addresses < 6 else (f"{selected_address} is fairly assessed based on {total_addresses} comparable properties.  \n{lower_addresses} are assessed lower with a median value of ${lower_median_value_psf:,.0f}") \
+        if value_psf_value < median_value_psf and savings < 250 else (f"{selected_address} is assessed at ${value_psf_value:,.0f} vs ${median_value_psf:,.0f} for similar properties and"
+                                                                      f"{((value_psf_value / median_value_psf) - 1) * 100:,.1f}% "
+                                                                      f" {above_below} {total_addresses} relevant comps in the neighborhood. \n{lower_addresses} properties are assessed lower with a median value of ${lower_median_value_psf:,.0f}. \n"
+                                                                      f"\nAn equitable assessment could result in ${savings:,.0f} in annual savings."
+                                                                      f"\nAdjusted Value: ${median_adjusted_value:,.0f} Appraised Value: ${appraised_value:,.0f}.")
+    result_df['distance_from_median'] = abs(result_df['Value_PSF'] / median_value_psf -1)
     result_df['Adjustment'] = result_df['Appraised_Value'] + (
-            matched_row['Living_Area'] - result_df['Living_Area']) * 70 + (
-                                      matched_row['Land_Value'] - result_df['Land_Value']) + (
-                                      matched_row['Year_Built'] - result_df['Year_Built']) * result_df[
-                                  'Appraised_Value'] * .005 - result_df['Appraised_Value']
+                matched_row['Living_Area'] - result_df['Living_Area']) * 70 + (
+                                              matched_row['Land_Value'] - result_df['Land_Value']) + (
+                                              matched_row['Year_Built'] - result_df['Year_Built']) * result_df[
+                                      'Appraised_Value'] * .005 - result_df['Appraised_Value']
     result_df['Adjusted_vs_Appraised'] = result_df['Appraised_Value'] / result_df['Adjusted_Value'] - 1
+
+
 
     # Assessment message
     ## assessment_text = f"Based on {total_addresses} relevant comps in the neighborhood, {selected_address} is over-assessed by {over_under} at ${value_psf_value:,.0f} PSF vs ${median_value_psf:,.0f} PSF for comparable properties" if value_psf_value > median_value_psf else f"Based on {total_addresses} relevant comps in the neighborhood, {selected_address} is fairly assessed."
@@ -252,6 +252,6 @@ def update_report(selected_rows, table_data):
 
     return result_df.to_dict('records'), fig, assessment_text, lower_valuation_df.to_dict('records')
 
-server = app.server  # This line is crucial
+
 if __name__ == "__main__":
     app.run_server(debug=True)
