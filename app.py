@@ -128,11 +128,10 @@ html.P("This information is provided for informational purposes only. It is deri
 
 def update_search_results(search_value):
     if not search_value:
-        return df[['Owner_Name', 'Situs_Address']].to_dict('records')
+        return df[['Situs_Address']].to_dict('records')
 
-    filtered_df = df[df['Situs_Address'].str.contains(search_value, case=False, na=False) |
-                     df['Owner_Name'].str.contains(search_value, case=False, na=False)]
-    return filtered_df[['Owner_Name', 'Situs_Address']].to_dict('records')
+    filtered_df = df[df['Situs_Address'].str.contains(search_value, case=False, na=False)]
+    return filtered_df[['Situs_Address']].to_dict('records')
 
 ## Results Table
 @app.callback(
