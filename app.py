@@ -54,8 +54,8 @@ app.layout = html.Div(style={
     ]),
 
     html.Div(className="mb-2", children=[
-        html.Label("Search by Address or Owner Name:", className="form-label fw-bold"),
-        dcc.Input(id='search_input', type='text', className="form-control", placeholder='Enter Address or Owner Name',
+        html.Label("Search by Address:", className="form-label fw-bold"),
+        dcc.Input(id='search_input', type='text', className="form-control", placeholder='Enter Address',
                   debounce=True)
     ]),
 
@@ -63,7 +63,7 @@ app.layout = html.Div(style={
         dash_table.DataTable(
             id='address_selection_table',
             columns=[
-                {'name': 'Owner Name', 'id': 'Owner_Name'},
+               # {'name': 'Owner Name', 'id': 'Owner_Name'},
                 {'name': 'Address', 'id': 'Situs_Address'},
             ],
             row_selectable='single',
@@ -84,7 +84,7 @@ app.layout = html.Div(style={
         columns=[
             {'name': 'Address', 'id': 'Situs_Address'},
             {'name': 'Appraised Value', 'id': 'Appraised_Value', 'type': 'numeric', 'format': {'specifier': '$,.0f'}},
-            {'name': 'Adjusted Value', 'id': 'Adjusted_Value', 'type': 'numeric', 'format': {'specifier': '$,.0f'}},
+           # {'name': 'Adjusted Value', 'id': 'Adjusted_Value', 'type': 'numeric', 'format': {'specifier': '$,.0f'}},
             {'name': 'Value PSF', 'id': 'Value_PSF', 'type': 'numeric', 'format': {'specifier': '$,.0f'}},
             {'name': 'Square Feet', 'id': 'Living_Area', 'type': 'numeric', 'format': {'specifier': ',.0f'}},
             {'name': 'Year Built', 'id': 'Year_Built'},
@@ -103,7 +103,7 @@ app.layout = html.Div(style={
         columns=[
             {'name': 'Address', 'id': 'Situs_Address'},
             {'name': 'Appraised Value', 'id': 'Appraised_Value', 'type': 'numeric', 'format': {'specifier': '$,.0f'}},
-            {'name': 'Adjusted Value', 'id': 'Adjusted_Value', 'type': 'numeric', 'format': {'specifier': '$,.0f'}},
+           # {'name': 'Adjusted Value', 'id': 'Adjusted_Value', 'type': 'numeric', 'format': {'specifier': '$,.0f'}},
             {'name': 'Value PSF', 'id': 'Value_PSF', 'type': 'numeric', 'format': {'specifier': '$,.0f'}},
             {'name': 'Square Feet', 'id': 'Living_Area', 'type': 'numeric', 'format': {'specifier': ',.0f'}},
             {'name': 'Year Built', 'id': 'Year_Built'},
@@ -228,7 +228,7 @@ def update_report(selected_rows, table_data):
 
     # Adjust Chart Layout
     fig.update_layout(
-        width=800,  # Set chart width
+        width='auto',  # Set chart width
         margin=dict(l=50, r=50, t=50, b=50),  # Adjust margins
         title_x=0.5  # Center title
     )
