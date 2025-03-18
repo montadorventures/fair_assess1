@@ -3,12 +3,8 @@ import dash
 from dash import dcc, html, dash_table
 from dash.dependencies import Input, Output
 
-# Replace with your actual Google Sheet ID and sheet name
-SHEET_ID = "your_google_sheet_id"
-SHEET_NAME = "Sheet1"
-
 # Construct the Google Sheets CSV export URL
-CSV_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv&sheet={SHEET_NAME}"
+CSV_URL = f"https://docs.google.com/spreadsheets/d/e/2PACX-1vRa5d5Esfr7xKB1oR8mr7WyD61TZbCz1YIpQFffF9C8ghGEjII3qjPiXHiNNrjb6VVYZXDjTrI8wEed/pub?gid=1273093190&single=true&output=csv"
 
 # Load the Google Sheet data
 def load_data():
