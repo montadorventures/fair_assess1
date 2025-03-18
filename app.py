@@ -7,30 +7,23 @@ import plotly.express as px
 url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRa5d5Esfr7xKB1oR8mr7WyD61TZbCz1YIpQFffF9C8ghGEjII3qjPiXHiNNrjb6VVYZXDjTrI8wEed/pub?gid=1273093190&single=true&output=csv"
 # Load the data
 def load_data(file_path):
-    df = pd.read_csv(url, encoding='UTF-8',
+    df = pd.read_csv(file_path, encoding='UTF-8',
                      dtype={'Year_Built': 'Int64', 'Appraised_Value': 'float', 'Living_Area': 'float'})
-
     df = df[['Owner_Name', 'Situs_Address', 'GIS_Link', 'City', 'MAPSCO', 'TAD_Map', 'Year_Built', 'Appraised_Value',
-             'Land_Value',
-             'Land_SqFt', 'Living_Area', 'Account_Num', 'LegalDescription', 'Property_Class', 'State_Use_Code',
-             'Exemption_Code']].dropna()
+             'Land_Value', 'Land_SqFt', 'Living_Area', 'Account_Num', 'LegalDescription', 'Property_Class',
+             'State_Use_Code', 'Exemption_Code']].dropna()
     df = df[df['Living_Area'] > 0]
-    #    df['Subdivision'] = df['LegalDescription'].str.extract(r'^(\S+\s\S+)(?=\s|ADDITION|BLOCK|-|$)', flags=re.IGNORECASE)
-    df = df.dropna()
     df['Year_Built'] = df['Year_Built'].astype('Int64')
     df['Subdivision'] = df['LegalDescription'].str.extract(r'^(.*?)\sBLOCK', flags=re.IGNORECASE)
     df['GIS_short'] = df['GIS_Link'].str.extract(r'^([^-]+)', flags=re.IGNORECASE)
     df['Block_Number'] = df['LegalDescription'].str.extract(r'Block (\d+)')
-    # df['Value_PSF'] = df['Value_PSF'].apply(lambda x: f"${round(x):,}")
-    # df['Appraised_Value'] = df['Appraised_Value'].apply(lambda x: f"${round(x):,}")
-
     df['Value_PSF'] = df['Appraised_Value'] / df['Living_Area']
-
+    return df  # Ensure the function returns the DataFrame
 
 # Initialize Dash app
 app = dash.Dash(__name__,
                 external_stylesheets=["https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"])
-df = load_data("fair_assess1/reduced_data.csv")
+df = load_data(url)  # Use the URL directly
 app.layout = html.Div(style={
     'width': 'auto',  # 8.5 inches (~800px)
     'height': '1056px',  # 11 inches (~1056px)
