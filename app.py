@@ -9,12 +9,12 @@ def load_data(file_path):
     df = pd.read_csv(file_path, encoding='ISO-8859-1',
                      dtype={'Year_Built': 'Int64', 'Appraised_Value': 'float', 'Living_Area': 'float'})
 
-    df = df[['Owner_Name', 'Situs_Address', 'GIS_Link','City', 'MAPSCO', 'TAD_Map', 'Year_Built', 'Appraised_Value','Land_Value',
-             'Land_SqFt', 'Living_Area', 'Account_Num','LegalDescription','Property_Class','State_Use_Code','Exemption_Code']].dropna()
+    df = df[['Owner_Name', 'Situs_Address','City', 'MAPSCO', 'TAD_Map', 'Year_Built', 'Appraised_Value','Land_Value',
+             'Land_SqFt', 'Living_Area', 'Account_Num','LegalDescription','Property_Class','State_Use_Code']].dropna()
     df = df[df['Living_Area'] > 0]
 #    df['Subdivision'] = df['LegalDescription'].str.extract(r'^(\S+\s\S+)(?=\s|ADDITION|BLOCK|-|$)', flags=re.IGNORECASE)
     df['Subdivision'] = df['LegalDescription'].str.extract(r'^(.*?)\sBLOCK', flags=re.IGNORECASE)
-    df['GIS_short'] = df['GIS_Link'].str.extract(r'^([^-]+)', flags=re.IGNORECASE)
+#    df['GIS_short'] = df['GIS_Link'].str.extract(r'^([^-]+)', flags=re.IGNORECASE)
     df['Block_Number'] = df['LegalDescription'].str.extract(r'Block (\d+)')
     # df['Value_PSF'] = df['Value_PSF'].apply(lambda x: f"${round(x):,}")
     # df['Appraised_Value'] = df['Appraised_Value'].apply(lambda x: f"${round(x):,}")
@@ -156,7 +156,7 @@ def update_report(selected_rows, table_data):
                 (df['MAPSCO'] == matched_row['MAPSCO'])
         ) &
         (
-                (df['GIS_short'] == matched_row['GIS_short']) |
+            #    (df['GIS_short'] == matched_row['GIS_short']) |
                 (df['Subdivision'] == matched_row['Subdivision'])
         )
         ]
