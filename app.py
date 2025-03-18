@@ -39,5 +39,6 @@ def update_table(n_clicks):
     return columns, data
 
 # Run app
+server = app.server  # This line is crucial
 if __name__ == "__main__":
     app.run_server(debug=True)
