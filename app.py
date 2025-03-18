@@ -49,7 +49,7 @@ app.layout = html.Div(style={
         html.H2("Is My Property Fairly Assessed?", className="fw-bold"),
         html.P("Find out if you're overpaying on property taxes and how much you could save.", className="lead"),
         html.P(
-            "This information is provided for informational purposes only. It is derived from sources deemed reliable but is not guaranteed for accuracy or completeness. This does not constitute tax, legal, or investment advice.",
+            "This tool is provided for informational purposes only and is derived from sources deemed reliable but is not guaranteed for accuracy or completeness. Use of this tool does not constitute tax, legal, or investment advice.",
             className="mt-3 fst-italic fs-6")
     ]),
 
@@ -63,7 +63,7 @@ app.layout = html.Div(style={
         dash_table.DataTable(
             id='address_selection_table',
             columns=[
-                {'name': 'LegalDescription', 'id': 'LegalDescription'},
+                {'name': 'Legal Description', 'id': 'LegalDescription'},
                 {'name': 'Address', 'id': 'Situs_Address'},
             ],
             row_selectable='single',
