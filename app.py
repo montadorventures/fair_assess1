@@ -3,12 +3,14 @@ import pandas as pd
 import dash
 from dash import dcc, html, Input, Output, dash_table
 import plotly.express as px
+# Construct the Google Sheets CSV export URL
+CSV_URL = f"https://docs.google.com/spreadsheets/d/e/2PACX-1vRa5d5Esfr7xKB1oR8mr7WyD61TZbCz1YIpQFffF9C8ghGEjII3qjPiXHiNNrjb6VVYZXDjTrI8wEed/pub?gid=1273093190&single=true&output=csv"
 
-url = f"https://docs.google.com/spreadsheets/d/e/2PACX-1vRa5d5Esfr7xKB1oR8mr7WyD61TZbCz1YIpQFffF9C8ghGEjII3qjPiXHiNNrjb6VVYZXDjTrI8wEed/pub?gid=1273093190&single=true&output=csv"
-# Load the data
-def load_data(file_path):
-    df = pd.read_csv(file_path, encoding='UTF-8',
-                     dtype={'Year_Built': 'Int64', 'Appraised_Value': 'float', 'Living_Area': 'float'})
+# Load the Google Sheet data
+def load_data():
+    df = pd.read_csv(CSV_URL)
+    return df
+
     df = df[['Owner_Name', 'Situs_Address', 'GIS_Link', 'City', 'MAPSCO', 'TAD_Map', 'Year_Built', 'Appraised_Value',
              'Land_Value', 'Land_SqFt', 'Living_Area', 'Account_Num', 'LegalDescription', 'Property_Class',
              'State_Use_Code', 'Exemption_Code']].dropna()
@@ -23,7 +25,7 @@ def load_data(file_path):
 # Initialize Dash app
 app = dash.Dash(__name__,
                 external_stylesheets=["https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"])
-df = load_data(url)  # Use the URL directly
+
 app.layout = html.Div(style={
     'width': 'auto',  # 8.5 inches (~800px)
     'height': '1056px',  # 11 inches (~1056px)
