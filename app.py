@@ -250,7 +250,6 @@ def update_report(selected_rows, table_data):
 
     return result_df.to_dict('records'), fig, assessment_text, lower_valuation_df.to_dict('records')
 
-
+server = app.server  # This line is crucial
 if __name__ == "__main__":
     app.run_server(debug=True)
-server = app.server  # This line is crucial
