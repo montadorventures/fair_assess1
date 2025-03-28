@@ -37,7 +37,7 @@ df = pd.read_csv(google_sheet_url)
 
 #df = load_data("reduced_data.csv")
 app.layout = html.Div(style={
-    'width': 'auto',  # 8.5 inches (~800px)
+    'width': '800px',  # 8.5 inches (~800px)
     'height': '1056px',  # 11 inches (~1056px)
     'margin': 'auto',  # Center the content
     'padding': '10px',  # Add padding
@@ -228,7 +228,7 @@ def update_report(selected_rows, table_data):
 
     # Adjust Chart Layout
     fig.update_layout(
-        width='auto',  # Set chart width
+        width=800,  # Set chart width
         margin=dict(l=50, r=50, t=50, b=50),  # Adjust margins
         title_x=0.5  # Center title
     )
