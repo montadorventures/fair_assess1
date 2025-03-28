@@ -30,7 +30,7 @@ app = dash.Dash(__name__,
                 external_stylesheets=["https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"])
 server = app.server  # Required for deployment
 # Replace this with your Google Sheets URL in CSV format
-google_sheet_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRuFjoE_rybnhwLDJFq2nGKhbYSkI9b9HSnvo-UINFa4qAmjfSDtWeebnX9L5Vn_c0nOXNQhZDGfKxw/pub?gid=1432867369&single=true&output=csv"
+google_sheet_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRa5d5Esfr7xKB1oR8mr7WyD61TZbCz1YIpQFffF9C8ghGEjII3qjPiXHiNNrjb6VVYZXDjTrI8wEed/pub?gid=1273093190&single=true&output=csv"
 
 # Load the data directly into a DataFrame
 df = pd.read_csv(google_sheet_url)
